@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaints Platform (Port 3010) | Speak Up</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <div class="logo">SpeakUp</div>
+        <div id="nav-links">
+            <!-- Dynamic links based on auth -->
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Login Page -->
+        <div id="login-page" class="page">
+            <div class="card">
+                <h1>Welcome Back</h1>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Login to manage your complaints.</p>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="login-email" placeholder="name@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="login-password" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+                    <div class="error-msg" id="login-error"></div>
+                </form>
+                <p style="margin-top: 1.5rem; text-align: center; font-size: 0.9rem; color: var(--text-muted);">
+                    Don't have an account? <a href="#" id="go-to-register" style="color: var(--primary);">Register here</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Register Page -->
+        <div id="register-page" class="page">
+            <div class="card">
+                <div id="reg-step-1">
+                    <h1>Join Us</h1>
+                    <p style="color: var(--text-muted); margin-bottom: 2rem;">Enter your details to receive an OTP.</p>
+                    <form id="otp-form">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="reg-name" placeholder="John Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="reg-email" placeholder="name@example.com" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Send OTP</button>
+                        <div class="error-msg" id="reg-error"></div>
+                    </form>
+                </div>
+
+                <div id="reg-step-2" class="hidden">
+                    <h1>Verify Email</h1>
+                    <p style="color: var(--text-muted); margin-bottom: 2rem;">Enter the 6-digit code sent to your email.</p>
+                    <form id="verify-form">
+                        <div class="form-group">
+                            <label>OTP Code</label>
+                            <input type="text" id="reg-otp" placeholder="123456" maxlength="6" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Setup Password</label>
+                            <input type="password" id="reg-password" placeholder="••••••••" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Confirm Password</label>
+                            <input type="password" id="reg-confirm-password" placeholder="••••••••" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Complete Registration</button>
+                        <div class="error-msg" id="verify-error"></div>
+                    </form>
+                </div>
+                
+                <p style="margin-top: 1.5rem; text-align: center; font-size: 0.9rem; color: var(--text-muted);">
+                    Already have an account? <a href="#" id="go-to-login" style="color: var(--primary);">Sign in here</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- My Complaints Page -->
+        <div id="my-complaints-page" class="page">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h1>My Complaints</h1>
+                <button class="btn btn-primary" id="btn-new-complaint">+ New Complaint</button>
+            </div>
+            <div id="my-complaints-list">
+                <!-- Complaints will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Submit Complaint Page -->
+        <div id="submit-complaint-page" class="page">
+            <div class="card" style="max-width: 700px;">
+                <h1>Submit Complaint</h1>
+                <div id="complaint-step-1">
+                    <div class="form-group">
+                        <label>What's the issue?</label>
+                        <textarea id="complaint-text" rows="5" placeholder="Describe your issue in detail..."></textarea>
+                    </div>
+                    <button class="btn btn-primary" id="btn-get-ai">Continue</button>
+                </div>
+
+                <div id="complaint-step-2" class="hidden">
+                    <div class="ai-section">
+                        <div class="ai-label">AI Follow-up Question</div>
+                        <p id="ai-question-text" style="font-weight: 600;"></p>
+                    </div>
+                    <div class="form-group" style="margin-top: 1.5rem;">
+                        <label>Your Answer</label>
+                        <textarea id="ai-answer" rows="3" placeholder="Provide more details here..."></textarea>
+                    </div>
+                    <button class="btn btn-primary" id="btn-final-submit" style="width: 100%;">Submit Final Complaint</button>
+                </div>
+                <div class="error-msg" id="complaint-error"></div>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="admin-page" class="page">
+            <h1>Admin Dashboard</h1>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Review and manage all user complaints.</p>
+            <div id="admin-complaints-list">
+                <!-- All complaints will be loaded here -->
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
