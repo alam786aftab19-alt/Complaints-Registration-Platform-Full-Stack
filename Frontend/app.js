@@ -1,4 +1,4 @@
-const API_BASE = "http://127.0.0.1:3010/api";
+const API_BASE = "https://complaints-registration-platform-full-xnkl.onrender.com/api";
 console.log("🚀 FRONTEND CONNECTED TO:", API_BASE);
 
 // State
@@ -12,7 +12,7 @@ const navLinks = document.getElementById('nav-links');
 function showPage(pageId) {
     pages.forEach(p => p.classList.remove('active'));
     document.getElementById(pageId).classList.add('active');
-    
+
     if (pageId === 'my-complaints-page') loadMyComplaints();
     if (pageId === 'admin-page') loadAllComplaints();
 }
@@ -88,7 +88,7 @@ document.getElementById('login-form').onsubmit = async (e) => {
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
     const errorEl = document.getElementById('login-error');
-    
+
     try {
         currentUser = await apiCall('/auth/login', 'POST', { email, password });
         updateNav();
@@ -106,7 +106,7 @@ document.getElementById('otp-form').onsubmit = async (e) => {
     const name = document.getElementById('reg-name').value;
     const email = document.getElementById('reg-email').value;
     const errorEl = document.getElementById('reg-error');
-    
+
     try {
         await apiCall('/auth/send-otp', 'POST', { name, email });
         document.getElementById('reg-step-1').classList.add('hidden');
@@ -131,7 +131,7 @@ document.getElementById('verify-form').onsubmit = async (e) => {
         errorEl.style.display = 'block';
         return;
     }
-    
+
     try {
         await apiCall('/auth/register', 'POST', { email, otp, password });
         alert("Registration successful! Please login.");
@@ -160,7 +160,7 @@ document.getElementById('btn-get-ai').onclick = async () => {
         const data = await apiCall('/ai/question', 'POST', { complaint_text: text });
         currentAIQuestion = data.question;
         document.getElementById('ai-question-text').textContent = currentAIQuestion;
-        
+
         document.getElementById('complaint-step-1').classList.add('hidden');
         document.getElementById('complaint-step-2').classList.remove('hidden');
     } catch (err) {
@@ -200,7 +200,7 @@ document.getElementById('btn-final-submit').onclick = async () => {
 async function loadMyComplaints() {
     const list = document.getElementById('my-complaints-list');
     list.innerHTML = '<p style="text-align:center; color:var(--text-muted)">Loading your complaints...</p>';
-    
+
     try {
         const data = await apiCall('/complaints/my');
         if (data.length === 0) {
@@ -216,7 +216,7 @@ async function loadMyComplaints() {
 async function loadAllComplaints() {
     const list = document.getElementById('admin-complaints-list');
     list.innerHTML = '<p style="text-align:center; color:var(--text-muted)">Loading all complaints...</p>';
-    
+
     try {
         const data = await apiCall('/admin/complaints');
         list.innerHTML = data.map(c => renderComplaint(c, true)).join('');
