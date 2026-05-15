@@ -16,7 +16,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://127.0.0.1:5500",
+  origin: ["http://127.0.0.1:5500", "https://alam786aftab19-alt.github.io"],
   credentials: true
 }));
 app.use(express.json());
@@ -62,8 +62,15 @@ app.post("/api/auth/send-otp", async (req, res) => {
     res.json({ success: true, message: "OTP sent to email" });
   } catch (error) {
     console.error("💥 CRITICAL ERROR IN SEND-OTP:");
-    console.error(error);
-    res.status(500).json({ message: "Error sending OTP [V3]", error: error.message });
+    console.error("Error Name:", error.name);
+    console.error("Error Message:", error.message);
+    console.error("Error Stack:", error.stack);
+    res.status(500).json({ 
+      success: false,
+      message: "Error sending OTP [V3]", 
+      details: error.message,
+      code: error.code 
+    });
   }
 });
 
