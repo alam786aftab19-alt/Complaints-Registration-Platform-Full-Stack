@@ -210,25 +210,37 @@ async function loadMyComplaints() {
 }
 
 async function loadAllComplaints() {
+    console.log("🔍 Fetching all complaints for admin...");
     try {
         const complaints = await apiCall('/admin/complaints');
+        console.log("📋 Complaints received:", complaints);
+        
+        if (!complaints || complaints.length === 0) {
+            document.getElementById('admin-complaints-list').innerHTML = `
+                <div style="text-align: center; padding: 3rem; color: #64748b; background: white; border-radius: 12px; border: 1px dashed #cbd5e1;">
+                    <p>No complaints found in the system.</p>
+                </div>`;
+            return;
+        }
+
         document.getElementById('admin-complaints-list').innerHTML = complaints.map(c => `
-            <div class="complaint-item" style="background: white; color: #1e293b; border: 1px solid #e2e8f0;">
-                <div class="user-info" style="border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; margin-bottom: 1rem; color: #64748b;">
-                    <strong>User:</strong> ${c.userName} (${c.userEmail})
+            <div class="complaint-item" style="background: white; color: #1e293b; border: 1px solid #e2e8f0; margin-bottom: 1rem; padding: 1.5rem; border-radius: 12px;">
+                <div class="user-info" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem; margin-bottom: 1rem; color: #64748b; font-size: 0.9rem;">
+                    <strong>User:</strong> ${c.userName || 'Unknown'} (${c.userEmail || 'N/A'})
                 </div>
-                <div class="comp-id" style="color: #94a3b8;">ID: ${c.id.substring(0, 8)}</div>
-                <div class="comp-desc" style="color: #1e293b; font-weight: 500;">${c.complaintText}</div>
-                <div class="ai-section" style="background: #f1f5f9; border-left-color: #6366f1;">
-                    <div class="ai-label" style="color: #6366f1;">AI Follow-up Question</div>
+                <div class="comp-id" style="color: #94a3b8; font-size: 0.8rem;">ID: ${c.id.substring(0, 8)}</div>
+                <div class="comp-desc" style="color: #1e293b; font-weight: 500; margin: 1rem 0;">${c.complaintText}</div>
+                <div class="ai-section" style="background: #f8fafc; border-left: 4px solid #6366f1; padding: 1rem; border-radius: 0 8px 8px 0;">
+                    <div class="ai-label" style="color: #6366f1; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">AI Follow-up Question</div>
                     <div style="font-weight: 600; margin-bottom: 0.5rem; color: #1e293b;">${c.aiQuestion}</div>
-                    <div class="ai-label" style="color: #64748b; margin-top: 1rem;">User's Answer</div>
+                    <div class="ai-label" style="color: #64748b; margin-top: 1rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">User's Answer</div>
                     <div style="color: #334155;">${c.userAnswer || 'No answer provided'}</div>
                 </div>
             </div>
         `).join('');
     } catch (err) {
-        console.error("Admin Load Error:", err);
+        console.error("❌ Admin Load Error:", err);
+        document.getElementById('admin-complaints-list').innerHTML = `<p style="color: red;">Error: ${err.message}</p>`;
     }
 }
 
