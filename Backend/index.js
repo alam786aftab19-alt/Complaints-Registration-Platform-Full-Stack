@@ -97,35 +97,28 @@ app.post("/api/auth/register", async (req, res) => {
       otp_expiry: null
     }).where(eq(users.email, email));
 
-    const token = jwt.sign({ id: email, email: email, role: 'user' }, process.env.JWT_SECRET);
-    res.json({ success: true, message: "Registration successful", token });
+    const token = jwt.sign({ id: user.id, email: user.email, role: user.role || 'user' }, process.env.JWT_SECRET);
+    res.json({ message: "Registration successful", token });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error during registration" });
+    res.status(500).json({ message: "Error registering" });
   }
 });
 
 // POST /api/auth/login
 app.post("/api/auth/login", async (req, res) => {
   const { email, password } = req.body;
-  
   try {
     const userResult = await db.select().from(users).where(eq(users.email, email));
     const user = userResult[0];
 
-    if (!user || !user.is_verified || user.password !== password) {
-      return res.status(401).json({ message: "Invalid email or password" });
+    if (!user || user.password !== password) {
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
     const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET);
-
-    res.json({ 
-      token,
-      user: { name: user.name, email: user.email, role: user.role }
-    });
+    res.json({ token, user: { name: user.name, role: user.role } });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error during login" });
+    res.status(500).json({ message: "Error logging in" });
   }
 });
 
