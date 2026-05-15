@@ -1,15 +1,15 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 import * as schema from "./schema.js";
-import dotenv from "dotenv";
-
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
+import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-dotenv.config({ path: join(__dirname, ".env") });
+// Load .env only if it exists (local dev), otherwise use system env (Render)
+dotenv.config({ path: join(__dirname, '.env') });
 
 const { Pool } = pg;
 
