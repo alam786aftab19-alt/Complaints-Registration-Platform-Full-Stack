@@ -228,6 +228,22 @@ app.post("/api/admin/users", authenticateToken, isAdmin, async (req, res) => {
   }
 });
 
+// GET /api/admin/users (New List All Users Route)
+app.get("/api/admin/users", authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const allUsers = await db.select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      role: users.role,
+      created_at: users.created_at
+    }).from(users);
+    res.json(allUsers);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching users" });
+  }
+});
+
 console.log('✅ SERVER STARTING WITH NEW STABLE DRIVER (PG)');
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

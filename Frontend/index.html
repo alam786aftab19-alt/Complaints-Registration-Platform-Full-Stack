@@ -134,45 +134,74 @@
 
         <!-- Admin Dashboard -->
         <div id="admin-page" class="page">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h1>Admin Dashboard</h1>
-                <button class="btn btn-primary" id="btn-show-add-user">+ Add New User</button>
+            <div class="admin-header" style="margin-bottom: 2rem;">
+                <h1>Admin Command Center</h1>
+                <p style="color: var(--text-muted);">Manage your system, users, and complaints from one place.</p>
             </div>
 
-            <!-- Add User Form (Hidden by default) -->
-            <div id="add-user-section" class="card hidden" style="margin-bottom: 3rem; max-width: 600px;">
-                <h2>Create New Account</h2>
-                <form id="admin-add-user-form">
-                    <div class="form-group">
-                        <label>Full Name</label>
-                        <input type="text" id="admin-user-name" placeholder="John Doe" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Email Address</label>
-                        <input type="email" id="admin-user-email" placeholder="email@example.com" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Initial Password</label>
-                        <input type="password" id="admin-user-password" placeholder="••••••••" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Role</label>
-                        <select id="admin-user-role" style="width: 100%; padding: 0.75rem; background: rgba(15, 23, 42, 0.5); border: 1px solid var(--border); border-radius: 8px; color: white;">
-                            <option value="user">User</option>
-                            <option value="admin">Admin</option>
-                        </select>
-                    </div>
-                    <div style="display: flex; gap: 1rem;">
-                        <button type="submit" class="btn btn-primary">Create User</button>
-                        <button type="button" class="btn btn-outline" id="btn-cancel-add-user">Cancel</button>
-                    </div>
-                </form>
+            <!-- Admin Tabs -->
+            <div class="admin-tabs" style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
+                <button class="btn btn-outline admin-tab-btn active" data-tab="tab-complaints">Complaints</button>
+                <button class="btn btn-outline admin-tab-btn" data-tab="tab-users">User List</button>
+                <button class="btn btn-outline admin-tab-btn" data-tab="tab-add-user">Add User</button>
             </div>
 
-            <h2>All System Complaints</h2>
-            <p style="color: var(--text-muted); margin-bottom: 2rem;">Reviewing all complaints submitted by users.</p>
-            <div id="admin-complaints-list">
-                <!-- All complaints will be loaded here -->
+            <!-- Tab: Complaints -->
+            <div id="tab-complaints" class="admin-tab-content">
+                <h2 style="margin-bottom: 1rem;">All System Complaints</h2>
+                <div id="admin-complaints-list" class="complaints-grid">
+                    <!-- Complaints Load Here -->
+                </div>
+            </div>
+
+            <!-- Tab: Users List -->
+            <div id="tab-users" class="admin-tab-content hidden">
+                <h2 style="margin-bottom: 1rem;">Registered Users</h2>
+                <div class="card" style="max-width: 100%; background: white; color: #1e293b;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #e2e8f0; text-align: left;">
+                                <th style="padding: 1rem;">Name</th>
+                                <th style="padding: 1rem;">Email</th>
+                                <th style="padding: 1rem;">Role</th>
+                                <th style="padding: 1rem;">Joined</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-users-list">
+                            <!-- Users Load Here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab: Add User -->
+            <div id="tab-add-user" class="admin-tab-content hidden">
+                <div class="card" style="max-width: 600px; background: white; color: #1e293b; margin: 0;">
+                    <h2 style="color: #1e293b;">Create New Account</h2>
+                    <p style="color: #64748b; margin-bottom: 2rem;">Manually create an account for a team member or user.</p>
+                    <form id="admin-add-user-form">
+                        <div class="form-group">
+                            <label style="color: #475569;">Full Name</label>
+                            <input type="text" id="admin-user-name" placeholder="John Doe" required style="background: #f8fafc; color: #1e293b; border: 1px solid #cbd5e1;">
+                        </div>
+                        <div class="form-group">
+                            <label style="color: #475569;">Email Address</label>
+                            <input type="email" id="admin-user-email" placeholder="email@example.com" required style="background: #f8fafc; color: #1e293b; border: 1px solid #cbd5e1;">
+                        </div>
+                        <div class="form-group">
+                            <label style="color: #475569;">Initial Password</label>
+                            <input type="password" id="admin-user-password" placeholder="••••••••" required style="background: #f8fafc; color: #1e293b; border: 1px solid #cbd5e1;">
+                        </div>
+                        <div class="form-group">
+                            <label style="color: #475569;">Role</label>
+                            <select id="admin-user-role" style="width: 100%; padding: 0.75rem; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; color: #1e293b;">
+                                <option value="user">User</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Create User Account</button>
+                    </form>
+                </div>
             </div>
         </div>
     </main>

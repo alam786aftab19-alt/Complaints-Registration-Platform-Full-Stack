@@ -213,17 +213,17 @@ async function loadAllComplaints() {
     try {
         const complaints = await apiCall('/admin/complaints');
         document.getElementById('admin-complaints-list').innerHTML = complaints.map(c => `
-            <div class="complaint-item">
-                <div class="user-info" style="border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+            <div class="complaint-item" style="background: white; color: #1e293b; border: 1px solid #e2e8f0;">
+                <div class="user-info" style="border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; margin-bottom: 1rem; color: #64748b;">
                     <strong>User:</strong> ${c.userName} (${c.userEmail})
                 </div>
-                <div class="comp-id">ID: ${c.id.substring(0, 8)}</div>
-                <div class="comp-desc">${c.complaintText}</div>
-                <div class="ai-section">
-                    <div class="ai-label">AI Follow-up Question</div>
-                    <div style="font-weight: 600; margin-bottom: 0.5rem;">${c.aiQuestion}</div>
-                    <div class="ai-label" style="color: var(--text-muted); margin-top: 1rem;">User's Answer</div>
-                    <div>${c.userAnswer || 'No answer provided'}</div>
+                <div class="comp-id" style="color: #94a3b8;">ID: ${c.id.substring(0, 8)}</div>
+                <div class="comp-desc" style="color: #1e293b; font-weight: 500;">${c.complaintText}</div>
+                <div class="ai-section" style="background: #f1f5f9; border-left-color: #6366f1;">
+                    <div class="ai-label" style="color: #6366f1;">AI Follow-up Question</div>
+                    <div style="font-weight: 600; margin-bottom: 0.5rem; color: #1e293b;">${c.aiQuestion}</div>
+                    <div class="ai-label" style="color: #64748b; margin-top: 1rem;">User's Answer</div>
+                    <div style="color: #334155;">${c.userAnswer || 'No answer provided'}</div>
                 </div>
             </div>
         `).join('');
@@ -232,14 +232,43 @@ async function loadAllComplaints() {
     }
 }
 
-// --- ADMIN PANEL HANDLERS ---
-document.getElementById('btn-show-add-user').onclick = () => {
-    document.getElementById('add-user-section').classList.remove('hidden');
-};
+async function loadAllUsers() {
+    try {
+        const users = await apiCall('/admin/users');
+        document.getElementById('admin-users-list').innerHTML = users.map(u => `
+            <tr style="border-bottom: 1px solid #f1f5f9;">
+                <td style="padding: 1rem; font-weight: 600;">${u.name}</td>
+                <td style="padding: 1rem; color: #64748b;">${u.email}</td>
+                <td style="padding: 1rem;">
+                    <span style="padding: 0.2rem 0.6rem; border-radius: 99px; font-size: 0.75rem; font-weight: 700; background: ${u.role === 'admin' ? '#fee2e2; color: #ef4444;' : '#dcfce7; color: #10b981;'}">
+                        ${u.role.toUpperCase()}
+                    </span>
+                </td>
+                <td style="padding: 1rem; color: #94a3b8; font-size: 0.8rem;">${new Date(u.created_at).toLocaleDateString()}</td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        console.error("User Load Error:", err);
+    }
+}
 
-document.getElementById('btn-cancel-add-user').onclick = () => {
-    document.getElementById('add-user-section').classList.add('hidden');
-};
+// --- ADMIN PANEL HANDLERS ---
+document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+    btn.onclick = () => {
+        // Update Buttons
+        document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Update Content
+        const tabId = btn.getAttribute('data-tab');
+        document.querySelectorAll('.admin-tab-content').forEach(content => content.classList.add('hidden'));
+        document.getElementById(tabId).classList.remove('hidden');
+
+        // Load data if needed
+        if (tabId === 'tab-complaints') loadAllComplaints();
+        if (tabId === 'tab-users') loadAllUsers();
+    };
+});
 
 document.getElementById('admin-add-user-form').onsubmit = async (e) => {
     e.preventDefault();
@@ -252,13 +281,14 @@ document.getElementById('admin-add-user-form').onsubmit = async (e) => {
         await apiCall('/admin/users', 'POST', { name, email, password, role });
         alert("Success: User account created!");
         document.getElementById('admin-add-user-form').reset();
-        document.getElementById('add-user-section').classList.add('hidden');
+        // Switch to users list
+        document.querySelector('[data-tab="tab-users"]').click();
     } catch (err) {
         alert(err.message);
     }
 };
 
-// Global Nav Listeners (Original Link IDs)
+// Global Nav Listeners
 document.getElementById('go-to-register').onclick = (e) => { e.preventDefault(); showPage('register-page'); };
 document.getElementById('go-to-login').onclick = (e) => { e.preventDefault(); showPage('login-page'); };
 document.getElementById('btn-new-complaint').onclick = () => showPage('submit-complaint-page');
@@ -268,6 +298,12 @@ document.getElementById('btn-new-complaint').onclick = () => showPage('submit-co
     await checkSession();
     updateNav();
     if (!currentUser) showPage('login-page');
-    else if (currentUser.role === 'admin') { showPage('admin-page'); loadAllComplaints(); }
-    else { showPage('my-complaints-page'); loadMyComplaints(); }
+    else if (currentUser.role === 'admin') { 
+        showPage('admin-page'); 
+        loadAllComplaints(); 
+    }
+    else { 
+        showPage('my-complaints-page'); 
+        loadMyComplaints(); 
+    }
 })();

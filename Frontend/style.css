@@ -210,6 +210,19 @@ input:focus, textarea:focus {
     margin-right: 8px;
 }
 
+.admin-tab-btn {
+    opacity: 0.7;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+}
+
+.admin-tab-btn.active {
+    opacity: 1;
+    border-bottom: 2px solid var(--primary);
+    color: var(--primary);
+}
+
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
