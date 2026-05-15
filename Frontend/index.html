@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Complaints Platform | Speak Up</title>
+    <title>Complaints Platform (Port 3010) | Speak Up</title>
     <link rel="stylesheet" href="style.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script type="text/javascript">
@@ -17,72 +17,63 @@
 </head>
 <body>
     <nav>
-        <div class="nav-container">
-            <div class="logo">SpeakUp</div>
-            <div class="nav-links" id="nav-links">
-                <!-- Dynamic Nav -->
-            </div>
+        <div class="logo">SpeakUp</div>
+        <div id="nav-links">
+            <!-- Dynamic links based on auth -->
         </div>
     </nav>
 
     <main class="container">
-        <!-- Landing Page -->
-        <section id="landing-page" class="page">
-            <div class="hero">
-                <h1>Report Issues. <span class="highlight">Get Results.</span></h1>
-                <p>The smartest way to register and track your complaints. AI-powered follow-ups ensure every detail is captured.</p>
-                <div class="hero-btns">
-                    <button class="btn btn-primary" id="go-to-register">Get Started</button>
-                    <button class="btn btn-outline" id="go-to-login">Login</button>
-                </div>
-            </div>
-        </section>
-
         <!-- Login Page -->
-        <section id="login-page" class="page hidden">
-            <div class="card auth-card">
-                <h2>Welcome Back</h2>
-                <p>Login to your account to track complaints</p>
+        <div id="login-page" class="page">
+            <div class="card">
+                <h1>Welcome Back</h1>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Login to manage your complaints.</p>
                 <form id="login-form">
                     <div class="form-group">
                         <label>Email Address</label>
-                        <input type="email" id="login-email" placeholder="email@example.com" required>
+                        <input type="email" id="login-email" placeholder="name@example.com" required>
                     </div>
                     <div class="form-group">
                         <label>Password</label>
                         <input type="password" id="login-password" placeholder="••••••••" required>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-block">Login</button>
-                    <p id="login-error" class="error-msg"></p>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+                    <div class="error-msg" id="login-error"></div>
                 </form>
+                <p style="margin-top: 1.5rem; text-align: center; font-size: 0.9rem; color: var(--text-muted);">
+                    Don't have an account? <a href="#" id="go-to-register" style="color: var(--primary);">Register here</a>
+                </p>
             </div>
-        </section>
+        </div>
 
         <!-- Register Page -->
-        <section id="register-page" class="page hidden">
-            <div class="card auth-card">
-                <h2>Create Account</h2>
-                <p>Join the platform to start reporting issues</p>
-                
+        <div id="register-page" class="page">
+            <div class="card">
                 <div id="reg-step-1">
-                    <form id="register-form">
+                    <h1>Join Us</h1>
+                    <p style="color: var(--text-muted); margin-bottom: 2rem;">Enter your details to receive an OTP.</p>
+                    <form id="otp-form">
                         <div class="form-group">
                             <label>Full Name</label>
                             <input type="text" id="reg-name" placeholder="John Doe" required>
                         </div>
                         <div class="form-group">
                             <label>Email Address</label>
-                            <input type="email" id="reg-email" placeholder="email@example.com" required>
+                            <input type="email" id="reg-email" placeholder="name@example.com" required>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block">Send OTP</button>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Send OTP</button>
+                        <div class="error-msg" id="reg-error"></div>
                     </form>
                 </div>
 
                 <div id="reg-step-2" class="hidden">
+                    <h1>Verify Email</h1>
+                    <p style="color: var(--text-muted); margin-bottom: 2rem;">Enter the 6-digit code sent to your email.</p>
                     <form id="verify-form">
                         <div class="form-group">
                             <label>OTP Code</label>
-                            <input type="text" id="reg-otp" placeholder="123456" required>
+                            <input type="text" id="reg-otp" placeholder="123456" maxlength="6" required>
                         </div>
                         <div class="form-group">
                             <label>Setup Password</label>
@@ -90,64 +81,65 @@
                         </div>
                         <div class="form-group">
                             <label>Confirm Password</label>
-                            <input type="password" id="reg-confirm" placeholder="••••••••" required>
+                            <input type="password" id="reg-confirm-password" placeholder="••••••••" required>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block">Complete Registration</button>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Complete Registration</button>
+                        <div class="error-msg" id="verify-error"></div>
                     </form>
                 </div>
-                <p id="reg-error" class="error-msg"></p>
+                
+                <p style="margin-top: 1.5rem; text-align: center; font-size: 0.9rem; color: var(--text-muted);">
+                    Already have an account? <a href="#" id="go-to-login" style="color: var(--primary);">Sign in here</a>
+                </p>
             </div>
-        </section>
+        </div>
 
-        <!-- Dashboard (My Complaints) -->
-        <section id="my-complaints-page" class="page hidden">
-            <div class="page-header">
-                <h2>My Complaints</h2>
-                <button class="btn btn-primary" id="btn-new-complaint">New Complaint</button>
+        <!-- My Complaints Page -->
+        <div id="my-complaints-page" class="page">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h1>My Complaints</h1>
+                <button class="btn btn-primary" id="btn-new-complaint">+ New Complaint</button>
             </div>
-            <div id="complaints-list" class="complaints-grid">
-                <!-- Complaints Load Here -->
+            <div id="my-complaints-list">
+                <!-- Complaints will be loaded here -->
             </div>
-        </section>
+        </div>
 
-        <!-- Submit Complaint -->
-        <section id="submit-complaint-page" class="page hidden">
-            <div class="card">
-                <h2>Submit New Complaint</h2>
-                <form id="complaint-form">
+        <!-- Submit Complaint Page -->
+        <div id="submit-complaint-page" class="page">
+            <div class="card" style="max-width: 700px;">
+                <h1>Submit Complaint</h1>
+                <div id="complaint-step-1">
                     <div class="form-group">
-                        <label>Complaint Title</label>
-                        <input type="text" id="comp-title" placeholder="Brief summary of the issue" required>
+                        <label>What's the issue?</label>
+                        <textarea id="complaint-text" rows="5" placeholder="Describe your issue in detail..."></textarea>
                     </div>
-                    <div class="form-group">
-                        <label>Describe the issue</label>
-                        <textarea id="comp-description" rows="4" placeholder="Provide as much detail as possible..." required></textarea>
-                    </div>
-                    
-                    <div id="ai-followup-box" class="ai-box hidden">
-                        <p class="ai-label">🤖 AI Follow-up Question:</p>
-                        <p id="ai-question-text" style="font-weight: 600; margin-bottom: 1rem;"></p>
-                        <textarea id="ai-answer" rows="3" placeholder="Your answer to help us better understand..."></textarea>
-                    </div>
+                    <button class="btn btn-primary" id="btn-get-ai">Continue</button>
+                </div>
 
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-outline" id="btn-ask-ai">Ask AI to Review</button>
-                        <button type="submit" class="btn btn-primary">Submit Complaint</button>
+                <div id="complaint-step-2" class="hidden">
+                    <div class="ai-section">
+                        <div class="ai-label">AI Follow-up Question</div>
+                        <p id="ai-question-text" style="font-weight: 600;"></p>
                     </div>
-                </form>
+                    <div class="form-group" style="margin-top: 1.5rem;">
+                        <label>Your Answer</label>
+                        <textarea id="ai-answer" rows="3" placeholder="Provide more details here..."></textarea>
+                    </div>
+                    <button class="btn btn-primary" id="btn-final-submit" style="width: 100%;">Submit Final Complaint</button>
+                </div>
+                <div class="error-msg" id="complaint-error"></div>
             </div>
-        </section>
+        </div>
 
         <!-- Admin Dashboard -->
-        <section id="admin-page" class="page hidden">
-            <div class="page-header">
-                <h2>Admin Dashboard</h2>
-                <p>Manage and review all system complaints</p>
+        <div id="admin-page" class="page">
+            <h1>Admin Dashboard</h1>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Review and manage all user complaints.</p>
+            <div id="admin-complaints-list">
+                <!-- All complaints will be loaded here -->
             </div>
-            <div id="admin-complaints-list" class="complaints-grid">
-                <!-- All Complaints Here -->
-            </div>
-        </section>
+        </div>
     </main>
 
     <script src="app.js"></script>

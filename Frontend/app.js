@@ -7,9 +7,9 @@ let currentUser = null;
 // Navigation
 function showPage(pageId) {
     const pages = document.querySelectorAll('.page');
-    pages.forEach(p => p.classList.remove('active')); // Use 'active' from your CSS
+    pages.forEach(p => p.classList.remove('active')); 
     const target = document.getElementById(pageId);
-    if (target) target.classList.add('active'); // Use 'active' from your CSS
+    if (target) target.classList.add('active');
     window.scrollTo(0, 0);
 }
 
@@ -27,14 +27,14 @@ function updateNav() {
         };
     } else {
         navLinks.innerHTML = `
-            <a href="#" id="nav-login">Login</a>
-            <a href="#" id="nav-register" class="btn btn-primary btn-sm">Register</a>
+            <a href="#" id="nav-login-link">Login</a>
+            <a href="#" id="nav-register-link" class="btn btn-primary" style="padding: 0.5rem 1rem; margin-left: 1rem;">Register</a>
         `;
-        document.getElementById('nav-login').onclick = (e) => {
+        document.getElementById('nav-login-link').onclick = (e) => {
             e.preventDefault();
             showPage('login-page');
         };
-        document.getElementById('nav-register').onclick = (e) => {
+        document.getElementById('nav-register-link').onclick = (e) => {
             e.preventDefault();
             showPage('register-page');
         };
@@ -113,19 +113,16 @@ document.getElementById('login-form').onsubmit = async (e) => {
     }
 };
 
-document.getElementById('register-form').onsubmit = async (e) => {
+// --- REGISTER FORM (Original ID: otp-form) ---
+document.getElementById('otp-form').onsubmit = async (e) => {
     e.preventDefault();
     const name = document.getElementById('reg-name').value;
     const email = document.getElementById('reg-email').value;
     try {
         const data = await apiCall('/auth/send-otp', 'POST', { name, email });
         
-        if (!data || !data.otp) {
-            throw new Error("Server generated an OTP but failed to share it. Check Render Logs.");
-        }
-
         // --- BYPASS RENDER BLOCK: Send via EmailJS ---
-        console.log("📤 Sending OTP via EmailJS Bypass...", data.otp);
+        console.log("📤 Sending OTP via EmailJS Bypass...");
         try {
             await emailjs.send("service_qyvuqcs", "template_ht3fkqo", {
                 to_email: email, 
@@ -135,50 +132,53 @@ document.getElementById('register-form').onsubmit = async (e) => {
             console.log("🚀 Email sent successfully via Browser!");
         } catch (emailErr) {
             console.error("❌ EmailJS ERROR:", emailErr);
-            throw new Error("EmailJS Error: " + (emailErr.text || JSON.stringify(emailErr)));
+            throw new Error("Email delivery failed. Try again later.");
         }
         // ----------------------------------------------
 
         document.getElementById('reg-step-1').classList.add('hidden');
         document.getElementById('reg-step-2').classList.remove('hidden');
     } catch (err) {
-        alert(err.message || "Unknown Registration Error");
+        document.getElementById('reg-error').textContent = err.message;
     }
 };
 
+// --- VERIFY FORM ---
 document.getElementById('verify-form').onsubmit = async (e) => {
     e.preventDefault();
     const email = document.getElementById('reg-email').value;
     const otp = document.getElementById('reg-otp').value;
     const password = document.getElementById('reg-password').value;
-    const confirm = document.getElementById('reg-confirm').value;
+    const confirm = document.getElementById('reg-confirm-password').value; // Original ID
+
     if (password !== confirm) return alert("Passwords do not match");
     try {
         const data = await apiCall('/auth/register', 'POST', { email, otp, password });
         if (data.token) localStorage.setItem('token', data.token);
-        alert("Registration successful!");
+        alert("Registration successful! You can now login.");
         showPage('login-page');
     } catch (err) {
-        alert(err.message);
+        document.getElementById('verify-error').textContent = err.message;
     }
 };
 
-document.getElementById('btn-ask-ai').onclick = async () => {
-    const text = document.getElementById('comp-description').value;
+// --- COMPLAINT ACTIONS (Original IDs) ---
+document.getElementById('btn-get-ai').onclick = async () => {
+    const text = document.getElementById('complaint-text').value; // Original ID
     if (!text) return alert("Describe the issue first");
     try {
         const question = await apiCall('/ai/question', 'POST', { complaintText: text });
         document.getElementById('ai-question-text').textContent = question;
-        document.getElementById('ai-followup-box').classList.remove('hidden');
+        document.getElementById('complaint-step-1').classList.add('hidden');
+        document.getElementById('complaint-step-2').classList.remove('hidden');
     } catch (err) {
         alert(err.message);
     }
 };
 
-document.getElementById('complaint-form').onsubmit = async (e) => {
-    e.preventDefault();
-    const title = document.getElementById('comp-title').value;
-    const description = document.getElementById('comp-description').value;
+document.getElementById('btn-final-submit').onclick = async () => {
+    const title = "New Complaint"; // Simplified for original structure
+    const description = document.getElementById('complaint-text').value;
     const aiQuestion = document.getElementById('ai-question-text').textContent;
     const userAnswer = document.getElementById('ai-answer').value;
     try {
@@ -194,7 +194,7 @@ document.getElementById('complaint-form').onsubmit = async (e) => {
 async function loadMyComplaints() {
     try {
         const complaints = await apiCall('/complaints/my');
-        document.getElementById('complaints-list').innerHTML = complaints.map(c => renderComplaint(c)).join('');
+        document.getElementById('my-complaints-list').innerHTML = complaints.map(c => renderComplaint(c)).join('');
     } catch (err) {}
 }
 
@@ -209,19 +209,21 @@ function renderComplaint(c, showUser = false) {
     return `
         <div class="complaint-item">
             <div class="comp-id">ID: ${c.id.substring(0, 8)}</div>
-            <div class="comp-title">${c.title}</div>
+            <div class="comp-title">${c.title || 'Complaint'}</div>
             <div class="comp-desc">${c.description}</div>
-            <div class="ai-box">
-                <small>AI Question: ${c.aiQuestion}</small><br>
-                <small>Answer: ${c.userAnswer || 'N/A'}</small>
+            <div class="ai-section">
+                <div class="ai-label">AI Follow-up Question</div>
+                <div style="font-weight: 600; margin-bottom: 0.5rem;">${c.aiQuestion}</div>
+                <div class="ai-label" style="color: var(--text-muted); margin-top: 1rem;">User's Answer</div>
+                <div>${c.userAnswer || 'No answer provided'}</div>
             </div>
         </div>
     `;
 }
 
-// Navigation Events
-document.getElementById('go-to-register').onclick = () => showPage('register-page');
-document.getElementById('go-to-login').onclick = () => showPage('login-page');
+// Global Nav Listeners (Original Link IDs)
+document.getElementById('go-to-register').onclick = (e) => { e.preventDefault(); showPage('register-page'); };
+document.getElementById('go-to-login').onclick = (e) => { e.preventDefault(); showPage('login-page'); };
 document.getElementById('btn-new-complaint').onclick = () => showPage('submit-complaint-page');
 
 // Init
