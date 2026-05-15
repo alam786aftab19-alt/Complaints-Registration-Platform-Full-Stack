@@ -14,11 +14,15 @@ export const generateFollowUpQuestion = async (complaintText) => {
   Return ONLY the question text.`;
 
   try {
+    console.log("🤖 Asking Gemini for a follow-up question...");
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    return response.text().trim();
+    const text = response.text().trim();
+    console.log("✅ AI Response received:", text);
+    return text;
   } catch (error) {
-    console.error("Error generating AI question:", error);
+    console.error("❌ GEMINI API ERROR:", error.message);
+    // Return a default question so the user can still use the app
     return "Could you please provide more details about the issue?";
   }
 };
