@@ -123,9 +123,9 @@ app.post("/api/auth/login", async (req, res) => {
     const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET);
 
     res.cookie("token", token, {
-      httpOnly: false, // As per requirements
-      secure: false,   // As per requirements
-      sameSite: "lax"  // As per requirements
+      httpOnly: true,  // Better security
+      secure: true,    // Required for SameSite: none
+      sameSite: "none" // Required for cross-site cookies (GitHub -> Render)
     });
 
     res.json({ name: user.name, email: user.email, role: user.role });
