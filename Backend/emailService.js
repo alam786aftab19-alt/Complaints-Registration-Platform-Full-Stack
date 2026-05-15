@@ -8,13 +8,13 @@ const gmailPass = process.env.GMAIL_PASS ? process.env.GMAIL_PASS.replace(/\s+/g
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
+  port: 587,
+  secure: false, // TLS
   auth: {
     user: process.env.GMAIL_USER,
     pass: gmailPass,
   },
-  family: 4, // Force IPv4 to fix Render's ENETUNREACH error
+  family: 4, 
   connectionTimeout: 10000,
 });
 
