@@ -3,28 +3,20 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+const gmailPass = process.env.GMAIL_PASS ? process.env.GMAIL_PASS.replace(/\s+/g, '') : '';
+
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASS,
+    pass: gmailPass,
   },
-  // Force IPv4 because many cloud servers have issues with IPv6 and Gmail
   connectionTimeout: 10000,
 });
 
 export const sendOTPEmail = async (email, otp) => {
-  console.log(`📧 [DEBUG] Attempting to send OTP to ${email} using Gmail Service...`);
-  
-  // Verify the connection before sending
-  try {
-    await transporter.verify();
-    console.log("✅ [DEBUG] SMTP Connection Verified!");
-  } catch (err) {
-    console.error("❌ [DEBUG] SMTP Verification Failed:", err.message);
-  }
   console.log(`📧 Attempting to send OTP to ${email}...`);
-  if (!process.env.GMAIL_USER || !process.env.GMAIL_PASS) {
+  if (!process.env.GMAIL_USER || !gmailPass) {
     throw new Error("Missing GMAIL_USER or GMAIL_PASS environment variables");
   }
   const mailOptions = {
