@@ -185,17 +185,20 @@ document.getElementById('btn-get-ai').onclick = async () => {
 };
 
 document.getElementById('btn-final-submit').onclick = async () => {
-    const title = "New Complaint"; // Simplified for original structure
-    const description = document.getElementById('complaint-text').value;
+    const text = document.getElementById('complaint-text').value;
     const aiQuestion = document.getElementById('ai-question-text').textContent;
     const userAnswer = document.getElementById('ai-answer').value;
     try {
-        await apiCall('/complaints', 'POST', { title, description, aiQuestion, userAnswer });
-        alert("Complaint submitted!");
+        await apiCall('/complaints', 'POST', { 
+            complaint_text: text, 
+            ai_question: aiQuestion, 
+            ai_answer: userAnswer 
+        });
+        alert("Complaint submitted successfully!");
         showPage('my-complaints-page');
         loadMyComplaints();
     } catch (err) {
-        alert(err.message);
+        alert(err.message || "Error saving complaint");
     }
 };
 
