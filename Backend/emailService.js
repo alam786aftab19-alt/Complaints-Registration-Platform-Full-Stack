@@ -6,7 +6,6 @@ dotenv.config();
 const gmailPass = process.env.GMAIL_PASS ? process.env.GMAIL_PASS.replace(/\s+/g, '') : '';
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
   host: 'smtp.gmail.com',
   port: 587,
   secure: false, // TLS
@@ -14,7 +13,7 @@ const transporter = nodemailer.createTransport({
     user: process.env.GMAIL_USER,
     pass: gmailPass,
   },
-  family: 4, 
+  family: 4, // FORCE IPv4 ONLY
   connectionTimeout: 10000,
 });
 
