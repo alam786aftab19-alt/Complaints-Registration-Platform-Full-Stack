@@ -173,7 +173,9 @@ document.getElementById('btn-get-ai').onclick = async () => {
     const text = document.getElementById('complaint-text').value; // Original ID
     if (!text) return alert("Describe the issue first");
     try {
-        const question = await apiCall('/ai/question', 'POST', { complaintText: text });
+        // Match the backend property name: complaint_text
+        const response = await apiCall('/ai/question', 'POST', { complaint_text: text });
+        const question = response.question || response; // Handle both formats
         document.getElementById('ai-question-text').textContent = question;
         document.getElementById('complaint-step-1').classList.add('hidden');
         document.getElementById('complaint-step-2').classList.remove('hidden');
