@@ -6,15 +6,18 @@ dotenv.config();
 const gmailPass = process.env.GMAIL_PASS ? process.env.GMAIL_PASS.replace(/\s+/g, '') : '';
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
+  host: '74.125.142.108', // Direct Gmail IPv4 Address to bypass Render's IPv6 issues
   port: 587,
-  secure: false, // TLS
+  secure: false, 
   auth: {
     user: process.env.GMAIL_USER,
     pass: gmailPass,
   },
-  family: 4, // FORCE IPv4 ONLY
-  connectionTimeout: 10000,
+  tls: {
+    servername: 'smtp.gmail.com', // Required for SSL/TLS to work with an IP
+    rejectUnauthorized: false
+  },
+  connectionTimeout: 15000,
 });
 
 export const sendOTPEmail = async (email, otp) => {
