@@ -7,9 +7,9 @@ let currentUser = null;
 // Navigation
 function showPage(pageId) {
     const pages = document.querySelectorAll('.page');
-    pages.forEach(p => p.classList.add('hidden'));
+    pages.forEach(p => p.classList.remove('active')); // Use 'active' from your CSS
     const target = document.getElementById(pageId);
-    if (target) target.classList.remove('hidden');
+    if (target) target.classList.add('active'); // Use 'active' from your CSS
     window.scrollTo(0, 0);
 }
 
