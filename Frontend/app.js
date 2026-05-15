@@ -53,7 +53,10 @@ async function apiCall(endpoint, method = 'GET', body = null) {
         const res = await fetch(url, options);
         const data = await res.json();
         if (!res.ok) {
-            console.error("❌ Backend Error Data:", data);
+            // Don't show error log for session checks (normal if not logged in)
+            if (endpoint !== '/auth/me' || res.status !== 401) {
+                console.error("❌ Backend Error Data:", data);
+            }
             const detail = data.details || data.error || '';
             const code = data.code ? ` (Code: ${data.code})` : '';
             throw new Error(`${data.message || 'Something went wrong'}: ${detail}${code}`);
