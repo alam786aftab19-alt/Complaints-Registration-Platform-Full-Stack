@@ -62,8 +62,8 @@ async function apiCall(endpoint, method = 'GET', body = null) {
         }
         return data;
     } catch (err) {
-        console.error(err);
-        throw err;
+        console.error("🌐 API Call Failed:", err);
+        throw new Error(err.message || "Network Error: Could not connect to server");
     }
 }
 
@@ -119,16 +119,30 @@ document.getElementById('register-form').onsubmit = async (e) => {
     const email = document.getElementById('reg-email').value;
     try {
         const data = await apiCall('/auth/send-otp', 'POST', { name, email });
-        console.log("📤 Sending OTP via EmailJS Bypass...");
-        await emailjs.send("service_qyvuqcs", "template_ht3fkqo", {
-            to_email: email, 
-            email: email,    
-            otp: data.otp,
-        });
+        
+        if (!data || !data.otp) {
+            throw new Error("Server generated an OTP but failed to share it. Check Render Logs.");
+        }
+
+        // --- BYPASS RENDER BLOCK: Send via EmailJS ---
+        console.log("📤 Sending OTP via EmailJS Bypass...", data.otp);
+        try {
+            await emailjs.send("service_qyvuqcs", "template_ht3fkqo", {
+                to_email: email, 
+                email: email,    
+                otp: data.otp,
+            });
+            console.log("🚀 Email sent successfully via Browser!");
+        } catch (emailErr) {
+            console.error("❌ EmailJS ERROR:", emailErr);
+            throw new Error("EmailJS Error: " + (emailErr.text || JSON.stringify(emailErr)));
+        }
+        // ----------------------------------------------
+
         document.getElementById('reg-step-1').classList.add('hidden');
         document.getElementById('reg-step-2').classList.remove('hidden');
     } catch (err) {
-        alert(err.message);
+        alert(err.message || "Unknown Registration Error");
     }
 };
 
