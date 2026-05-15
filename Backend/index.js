@@ -57,9 +57,16 @@ app.post("/api/auth/send-otp", async (req, res) => {
     }
 
     console.log("⏳ Sending OTP email via Nodemailer...");
-    await sendOTPEmail(email, otp);
-    console.log("🚀 OTP successfully sent!");
-    res.json({ success: true, message: "OTP sent to email" });
+    try {
+      await sendOTPEmail(email, otp);
+      console.log("🚀 OTP successfully sent via Email!");
+    } catch (mailError) {
+      console.error("⚠️ EMAIL FAILED, but here is your OTP for debugging:");
+      console.log("👉 DEBUG OTP:", otp);
+      console.log("Please read this OTP from the logs to continue.");
+    }
+
+    res.json({ success: true, message: "OTP sent (Check logs if email fails)" });
   } catch (error) {
     console.error("💥 CRITICAL ERROR IN SEND-OTP:");
     console.error("Error Name:", error.name);
