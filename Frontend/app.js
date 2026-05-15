@@ -271,4 +271,9 @@ document.getElementById('go-to-login').onclick = (e) => { e.preventDefault(); sh
 document.getElementById('btn-new-complaint').onclick = () => showPage('submit-complaint-page');
 
 // Init
-checkSession();
+(async () => {
+    await checkSession();
+    if (!currentUser) {
+        showPage('login-page');
+    }
+})();
