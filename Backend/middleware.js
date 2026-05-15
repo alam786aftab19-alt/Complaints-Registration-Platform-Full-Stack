@@ -4,11 +4,13 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const authenticateToken = (req, res, next) => {
-  const token = req.cookies.token;
+    // Check both cookie (for local) and Authorization header (for cross-site)
+    const authHeader = req.headers['authorization'];
+    const token = (authHeader && authHeader.split(' ')[1]) || req.cookies.token;
 
-  if (!token) {
-    return res.status(401).json({ message: "Access denied. No token provided." });
-  }
+    if (!token) {
+        return res.status(401).json({ message: 'Access denied. No token provided.' });
+    }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);

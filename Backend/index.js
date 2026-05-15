@@ -101,7 +101,8 @@ app.post("/api/auth/register", async (req, res) => {
       otp_expiry: null
     }).where(eq(users.email, email));
 
-    res.json({ success: true, message: "Registration successful" });
+    const token = jwt.sign({ id: email, email: email, role: 'user' }, process.env.JWT_SECRET);
+    res.json({ success: true, message: "Registration successful", token });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error during registration" });
@@ -122,13 +123,10 @@ app.post("/api/auth/login", async (req, res) => {
 
     const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET);
 
-    res.cookie("token", token, {
-      httpOnly: true,  // Better security
-      secure: true,    // Required for SameSite: none
-      sameSite: "none" // Required for cross-site cookies (GitHub -> Render)
+    res.json({ 
+      token,
+      user: { name: user.name, email: user.email, role: user.role }
     });
-
-    res.json({ name: user.name, email: user.email, role: user.role });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error during login" });
