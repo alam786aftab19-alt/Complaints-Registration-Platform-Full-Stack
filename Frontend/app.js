@@ -36,10 +36,14 @@ function updateNav() {
 
 // API Helpers
 async function apiCall(endpoint, method = 'GET', body = null) {
+    const token = localStorage.getItem('token');
     const options = {
         method,
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include' // Send cookies
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': token ? `Bearer ${token}` : ''
+        },
+        credentials: 'include'
     };
     if (body) options.body = JSON.stringify(body);
 
@@ -95,7 +99,9 @@ document.getElementById('login-form').onsubmit = async (e) => {
     const errorEl = document.getElementById('login-error');
 
     try {
-        currentUser = await apiCall('/auth/login', 'POST', { email, password });
+        const data = await apiCall('/auth/login', 'POST', { email, password });
+        if (data.token) localStorage.setItem('token', data.token);
+        currentUser = data.user;
         updateNav();
         if (currentUser.role === 'admin') showPage('admin-page');
         else showPage('my-complaints-page');
@@ -138,7 +144,8 @@ document.getElementById('verify-form').onsubmit = async (e) => {
     }
 
     try {
-        await apiCall('/auth/register', 'POST', { email, otp, password });
+        const data = await apiCall('/auth/register', 'POST', { email, otp, password });
+        if (data.token) localStorage.setItem('token', data.token);
         alert("Registration successful! Please login.");
         showPage('login-page');
         document.getElementById('reg-step-2').classList.add('hidden');
