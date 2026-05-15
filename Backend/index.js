@@ -154,9 +154,12 @@ app.post("/api/ai/question", authenticateToken, async (req, res) => {
 app.post("/api/complaints", authenticateToken, async (req, res) => {
   const { complaint_text, ai_question, ai_answer } = req.body;
   
+  // LOG FOR DEBUGGING
+  console.log("📝 Submitting complaint for user ID:", req.user.id);
+
   try {
     const newComplaint = await db.insert(complaints).values({
-      userId: req.user.id,
+      userId: parseInt(req.user.id), // Force to Number just in case
       complaintText: complaint_text,
       aiQuestion: ai_question,
       userAnswer: ai_answer
@@ -164,8 +167,8 @@ app.post("/api/complaints", authenticateToken, async (req, res) => {
 
     res.json(newComplaint[0]);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error saving complaint" });
+    console.error("❌ DB Insert Error:", error);
+    res.status(500).json({ message: "Error saving complaint", details: error.message });
   }
 });
 
