@@ -155,11 +155,16 @@ app.post("/api/complaints", authenticateToken, async (req, res) => {
   const { complaint_text, ai_question, ai_answer } = req.body;
   
   // LOG FOR DEBUGGING
-  console.log("📝 Submitting complaint for user ID:", req.user.id);
+  const userId = parseInt(req.user.id);
+  console.log("📝 Submitting complaint for user ID:", userId);
+
+  if (isNaN(userId)) {
+    return res.status(401).json({ message: "Invalid session. Please logout and login again." });
+  }
 
   try {
     const newComplaint = await db.insert(complaints).values({
-      userId: parseInt(req.user.id), // Force to Number just in case
+      userId: userId,
       complaintText: complaint_text,
       aiQuestion: ai_question,
       userAnswer: ai_answer
