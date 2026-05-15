@@ -211,26 +211,52 @@ async function loadMyComplaints() {
 
 async function loadAllComplaints() {
     try {
-        const complaints = await apiCall('/complaints/admin');
-        document.getElementById('admin-complaints-list').innerHTML = complaints.map(c => renderComplaint(c, true)).join('');
-    } catch (err) {}
+        const complaints = await apiCall('/admin/complaints');
+        document.getElementById('admin-complaints-list').innerHTML = complaints.map(c => `
+            <div class="complaint-item">
+                <div class="user-info" style="border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+                    <strong>User:</strong> ${c.userName} (${c.userEmail})
+                </div>
+                <div class="comp-id">ID: ${c.id.substring(0, 8)}</div>
+                <div class="comp-desc">${c.complaintText}</div>
+                <div class="ai-section">
+                    <div class="ai-label">AI Follow-up Question</div>
+                    <div style="font-weight: 600; margin-bottom: 0.5rem;">${c.aiQuestion}</div>
+                    <div class="ai-label" style="color: var(--text-muted); margin-top: 1rem;">User's Answer</div>
+                    <div>${c.userAnswer || 'No answer provided'}</div>
+                </div>
+            </div>
+        `).join('');
+    } catch (err) {
+        console.error("Admin Load Error:", err);
+    }
 }
 
-function renderComplaint(c, showUser = false) {
-    return `
-        <div class="complaint-item">
-            <div class="comp-id">ID: ${c.id.substring(0, 8)}</div>
-            <div class="comp-title">${c.title || 'Complaint'}</div>
-            <div class="comp-desc">${c.description}</div>
-            <div class="ai-section">
-                <div class="ai-label">AI Follow-up Question</div>
-                <div style="font-weight: 600; margin-bottom: 0.5rem;">${c.aiQuestion}</div>
-                <div class="ai-label" style="color: var(--text-muted); margin-top: 1rem;">User's Answer</div>
-                <div>${c.userAnswer || 'No answer provided'}</div>
-            </div>
-        </div>
-    `;
-}
+// --- ADMIN PANEL HANDLERS ---
+document.getElementById('btn-show-add-user').onclick = () => {
+    document.getElementById('add-user-section').classList.remove('hidden');
+};
+
+document.getElementById('btn-cancel-add-user').onclick = () => {
+    document.getElementById('add-user-section').classList.add('hidden');
+};
+
+document.getElementById('admin-add-user-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('admin-user-name').value;
+    const email = document.getElementById('admin-user-email').value;
+    const password = document.getElementById('admin-user-password').value;
+    const role = document.getElementById('admin-user-role').value;
+
+    try {
+        await apiCall('/admin/users', 'POST', { name, email, password, role });
+        alert("Success: User account created!");
+        document.getElementById('admin-add-user-form').reset();
+        document.getElementById('add-user-section').classList.add('hidden');
+    } catch (err) {
+        alert(err.message);
+    }
+};
 
 // Global Nav Listeners (Original Link IDs)
 document.getElementById('go-to-register').onclick = (e) => { e.preventDefault(); showPage('register-page'); };

@@ -189,7 +189,6 @@ app.get("/api/complaints/my", authenticateToken, async (req, res) => {
 // GET /api/admin/complaints
 app.get("/api/admin/complaints", authenticateToken, isAdmin, async (req, res) => {
   try {
-    // Join complaints with users to get name/email
     const allComplaints = await db.select({
       id: complaints.id,
       complaintText: complaints.complaintText,
@@ -206,6 +205,26 @@ app.get("/api/admin/complaints", authenticateToken, isAdmin, async (req, res) =>
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error fetching all complaints" });
+  }
+});
+
+// POST /api/admin/users (New Add User Route)
+app.post("/api/admin/users", authenticateToken, isAdmin, async (req, res) => {
+  const { name, email, password, role } = req.body;
+  if (!name || !email || !password) return res.status(400).json({ message: "Missing required fields" });
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = await db.insert(users).values({
+      name,
+      email,
+      password: hashedPassword,
+      role: role || "user"
+    }).returning();
+
+    res.json({ message: "User created successfully", user: { id: newUser[0].id, name, email, role } });
+  } catch (error) {
+    res.status(500).json({ message: "Error creating user. Email might already exist." });
   }
 });
 
