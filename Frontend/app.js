@@ -71,17 +71,20 @@ async function apiCall(endpoint, method = 'GET', body = null) {
 // Auth Actions
 async function checkSession() {
     try {
-        currentUser = await apiCall('/auth/me');
-        updateNav();
-        if (currentUser.role === 'admin') {
-            showPage('admin-page');
-        } else {
-            showPage('my-complaints-page');
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API_BASE}/auth/me`, {
+            headers: { 'Authorization': token ? `Bearer ${token}` : '' }
+        });
+        if (res.status === 401) return; // Silent if not logged in
+        
+        if (res.ok) {
+            currentUser = await res.json();
+            updateNav();
+            if (currentUser.role === 'admin') showPage('admin-page');
+            else showPage('my-complaints-page');
         }
     } catch (err) {
-        currentUser = null;
-        updateNav();
-        showPage('login-page');
+        // Silent error
     }
 }
 
