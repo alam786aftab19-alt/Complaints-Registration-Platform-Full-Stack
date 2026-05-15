@@ -1,36 +1,28 @@
-const API_BASE = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost" 
-    ? "http://localhost:3010/api" 
-    : "https://complaints-registration-platform-full-xnkl.onrender.com/api";
-console.log("🚀 FRONTEND CONNECTED TO:", API_BASE);
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:10000/api'
+    : 'https://complaints-registration-platform-full-xnkl.onrender.com/api';
 
-// State
 let currentUser = null;
 
-// DOM Elements
-const pages = document.querySelectorAll('.page');
-const navLinks = document.getElementById('nav-links');
-
-// Navigation Helpers
+// Navigation
 function showPage(pageId) {
-    pages.forEach(p => p.classList.remove('active'));
-    document.getElementById(pageId).classList.add('active');
-
-    if (pageId === 'my-complaints-page') loadMyComplaints();
-    if (pageId === 'admin-page') loadAllComplaints();
+    document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+    document.getElementById(pageId).classList.remove('hidden');
+    window.scrollTo(0, 0);
 }
 
 function updateNav() {
+    const navLinks = document.getElementById('nav-links');
     if (currentUser) {
         navLinks.innerHTML = `
-            <span style="margin-right: 1rem; color: var(--text-muted)">Hi, ${currentUser.name}</span>
-            <button class="btn btn-outline" id="btn-logout">Logout</button>
+            <span>Welcome, <strong>${currentUser.name}</strong></span>
+            <a href="#" onclick="logout()">Logout</a>
         `;
-        document.getElementById('btn-logout').onclick = logout;
     } else {
         navLinks.innerHTML = `
-            <button class="btn btn-outline" id="nav-login">Login</button>
+            <a href="#" onclick="showPage('login-page')">Login</a>
+            <a href="#" onclick="showPage('register-page')" class="btn btn-primary btn-sm">Register</a>
         `;
-        document.getElementById('nav-login').onclick = () => showPage('login-page');
     }
 }
 
@@ -48,18 +40,14 @@ async function apiCall(endpoint, method = 'GET', body = null) {
     if (body) options.body = JSON.stringify(body);
 
     try {
-        const url = `${API_BASE.replace(/\/$/, '')}/${endpoint.replace(/^\//, '')}`;
-        console.log("🌐 Calling API:", url);
-        const res = await fetch(url, options);
+        const res = await fetch(`${API_BASE}${endpoint}`, options);
         const data = await res.json();
         if (!res.ok) {
-            // Don't show error log for session checks (normal if not logged in)
             if (endpoint !== '/auth/me' || res.status !== 401) {
                 console.error("❌ Backend Error Data:", data);
             }
             const detail = data.details || data.error || '';
-            const code = data.code ? ` (Code: ${data.code})` : '';
-            throw new Error(`${data.message || 'Something went wrong'}: ${detail}${code}`);
+            throw new Error(`${data.message || 'Something went wrong'}: ${detail}`);
         }
         return data;
     } catch (err) {
@@ -75,7 +63,7 @@ async function checkSession() {
         const res = await fetch(`${API_BASE}/auth/me`, {
             headers: { 'Authorization': token ? `Bearer ${token}` : '' }
         });
-        if (res.status === 401) return; // Silent if not logged in
+        if (res.status === 401) return;
         
         if (res.ok) {
             currentUser = await res.json();
@@ -84,20 +72,18 @@ async function checkSession() {
             else showPage('my-complaints-page');
         }
     } catch (err) {
-        // Silent error
+        // Silent
     }
 }
 
 async function logout() {
-    await apiCall('/auth/logout', 'POST');
+    localStorage.removeItem('token');
     currentUser = null;
     updateNav();
     showPage('login-page');
 }
 
 // Form Handlers
-
-// Login
 document.getElementById('login-form').onsubmit = async (e) => {
     e.preventDefault();
     const email = document.getElementById('login-email').value;
@@ -113,16 +99,13 @@ document.getElementById('login-form').onsubmit = async (e) => {
         else showPage('my-complaints-page');
     } catch (err) {
         errorEl.textContent = err.message;
-        errorEl.style.display = 'block';
     }
 };
 
-// Register - Step 1: Send OTP
-document.getElementById('otp-form').onsubmit = async (e) => {
+document.getElementById('register-form').onsubmit = async (e) => {
     e.preventDefault();
     const name = document.getElementById('reg-name').value;
     const email = document.getElementById('reg-email').value;
-    const errorEl = document.getElementById('reg-error');
 
     try {
         const data = await apiCall('/auth/send-otp', 'POST', { name, email });
@@ -130,12 +113,13 @@ document.getElementById('otp-form').onsubmit = async (e) => {
         // --- BYPASS RENDER BLOCK: Send via EmailJS ---
         console.log("📤 Sending OTP via EmailJS Bypass...");
         try {
-            const result = await emailjs.send("service_qyvuqcs", "template_ht3fkqo", {
-                to_email: email, // Make sure this matches your template!
-                email: email,    // Adding this just in case your template uses {{email}}
+            await emailjs.send("service_qyvuqcs", "template_ht3fkqo", {
+                to_email: email, 
+                email: email,    
+                user_email: email,
                 otp: data.otp,
             });
-            console.log("🚀 Email sent successfully via Browser!", result.status, result.text);
+            console.log("🚀 Email sent successfully via Browser!");
         } catch (emailErr) {
             console.error("❌ EmailJS ERROR:", emailErr);
             alert("Email delivery failed: " + JSON.stringify(emailErr));
@@ -145,134 +129,89 @@ document.getElementById('otp-form').onsubmit = async (e) => {
         document.getElementById('reg-step-1').classList.add('hidden');
         document.getElementById('reg-step-2').classList.remove('hidden');
     } catch (err) {
-        errorEl.textContent = err.message;
-        errorEl.style.display = 'block';
+        alert(err.message);
     }
 };
 
-// Register - Step 2: Verify & Password
 document.getElementById('verify-form').onsubmit = async (e) => {
     e.preventDefault();
     const email = document.getElementById('reg-email').value;
     const otp = document.getElementById('reg-otp').value;
     const password = document.getElementById('reg-password').value;
-    const confirm = document.getElementById('reg-confirm-password').value;
-    const errorEl = document.getElementById('verify-error');
+    const confirm = document.getElementById('reg-confirm').value;
 
-    if (password !== confirm) {
-        errorEl.textContent = "Passwords do not match";
-        errorEl.style.display = 'block';
-        return;
-    }
+    if (password !== confirm) return alert("Passwords do not match");
 
     try {
         const data = await apiCall('/auth/register', 'POST', { email, otp, password });
         if (data.token) localStorage.setItem('token', data.token);
-        alert("Registration successful! Please login.");
+        alert("Registration successful!");
         showPage('login-page');
-        document.getElementById('reg-step-2').classList.add('hidden');
-        document.getElementById('reg-step-1').classList.remove('hidden');
     } catch (err) {
-        errorEl.textContent = err.message;
-        errorEl.style.display = 'block';
+        alert(err.message);
     }
 };
 
-// Complaint Flow
-let currentAIQuestion = "";
-
-document.getElementById('btn-get-ai').onclick = async () => {
-    const text = document.getElementById('complaint-text').value;
-    const errorEl = document.getElementById('complaint-error');
-    if (!text) return;
+// Complaint Actions
+document.getElementById('btn-ask-ai').onclick = async () => {
+    const text = document.getElementById('comp-description').value;
+    if (!text) return alert("Please describe the issue first");
 
     try {
-        const btn = document.getElementById('btn-get-ai');
-        btn.disabled = true;
-        btn.innerHTML = '<span class="loader"></span> Analyzing...';
-
-        const data = await apiCall('/ai/question', 'POST', { complaint_text: text });
-        currentAIQuestion = data.question;
-        document.getElementById('ai-question-text').textContent = currentAIQuestion;
-
-        document.getElementById('complaint-step-1').classList.add('hidden');
-        document.getElementById('complaint-step-2').classList.remove('hidden');
+        const question = await apiCall('/ai/question', 'POST', { complaintText: text });
+        document.getElementById('ai-question-text').textContent = question;
+        document.getElementById('ai-followup-box').classList.remove('hidden');
     } catch (err) {
-        errorEl.textContent = err.message;
-        errorEl.style.display = 'block';
-    } finally {
-        const btn = document.getElementById('btn-get-ai');
-        btn.disabled = false;
-        btn.textContent = 'Continue';
+        alert(err.message);
     }
 };
 
-document.getElementById('btn-final-submit').onclick = async () => {
-    const text = document.getElementById('complaint-text').value;
-    const answer = document.getElementById('ai-answer').value;
-    const errorEl = document.getElementById('complaint-error');
+document.getElementById('complaint-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const title = document.getElementById('comp-title').value;
+    const description = document.getElementById('comp-description').value;
+    const aiQuestion = document.getElementById('ai-question-text').textContent;
+    const userAnswer = document.getElementById('ai-answer').value;
 
     try {
-        await apiCall('/complaints', 'POST', {
-            complaint_text: text,
-            ai_question: currentAIQuestion,
-            ai_answer: answer
-        });
+        await apiCall('/complaints', 'POST', { title, description, aiQuestion, userAnswer });
+        alert("Complaint submitted successfully!");
         showPage('my-complaints-page');
-        // Reset form
-        document.getElementById('complaint-text').value = "";
-        document.getElementById('ai-answer').value = "";
-        document.getElementById('complaint-step-2').classList.add('hidden');
-        document.getElementById('complaint-step-1').classList.remove('hidden');
+        loadMyComplaints();
     } catch (err) {
-        errorEl.textContent = err.message;
-        errorEl.style.display = 'block';
+        alert(err.message);
     }
 };
 
-// Data Loading
 async function loadMyComplaints() {
-    const list = document.getElementById('my-complaints-list');
-    list.innerHTML = '<p style="text-align:center; color:var(--text-muted)">Loading your complaints...</p>';
-
     try {
-        const data = await apiCall('/complaints/my');
-        if (data.length === 0) {
-            list.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top: 2rem;">No complaints yet. Speak up!</p>';
-            return;
-        }
-        list.innerHTML = data.map(c => renderComplaint(c)).join('');
+        const complaints = await apiCall('/complaints/my');
+        const list = document.getElementById('complaints-list');
+        list.innerHTML = complaints.map(c => renderComplaint(c)).join('');
     } catch (err) {
-        list.innerHTML = '<p style="color:var(--error)">Failed to load complaints.</p>';
+        console.error(err);
     }
 }
 
 async function loadAllComplaints() {
-    const list = document.getElementById('admin-complaints-list');
-    list.innerHTML = '<p style="text-align:center; color:var(--text-muted)">Loading all complaints...</p>';
-
     try {
-        const data = await apiCall('/admin/complaints');
-        list.innerHTML = data.map(c => renderComplaint(c, true)).join('');
+        const complaints = await apiCall('/complaints/admin');
+        const list = document.getElementById('admin-complaints-list');
+        list.innerHTML = complaints.map(c => renderComplaint(c, true)).join('');
     } catch (err) {
-        list.innerHTML = '<p style="color:var(--error)">Failed to load complaints.</p>';
+        console.error(err);
     }
 }
 
 function renderComplaint(c, showUser = false) {
     return `
         <div class="complaint-item">
-            ${showUser ? `
-                <div class="user-info">
-                    <strong>User:</strong> ${c.userName} (${c.userEmail})
-                </div>
-            ` : ''}
-            <div class="user-info">
-                <strong>Date:</strong> ${new Date(c.created_at).toLocaleDateString()}
-            </div>
-            <div class="complaint-text">${c.complaintText}</div>
-            <div class="ai-section">
-                <div class="ai-label">AI Follow-up</div>
+            ${showUser ? `<div class="user-info"><strong>User:</strong> ${c.userId}</div>` : ''}
+            <div class="comp-id">ID: ${c.id.substring(0, 8)}...</div>
+            <div class="comp-title">${c.title}</div>
+            <div class="comp-desc">${c.description}</div>
+            <div class="ai-followup-result">
+                <div class="ai-label" style="color: var(--accent); font-size: 0.8rem; margin-bottom: 0.3rem;">AI Follow-up</div>
                 <div style="font-weight: 600; margin-bottom: 0.5rem;">${c.aiQuestion}</div>
                 <div class="ai-label" style="color: var(--text-muted); margin-top: 1rem;">User's Answer</div>
                 <div style="color: var(--text-main)">${c.userAnswer || 'No answer provided'}</div>
@@ -281,15 +220,15 @@ function renderComplaint(c, showUser = false) {
     `;
 }
 
-// Navigation Events
-document.getElementById('go-to-register').onclick = (e) => { e.preventDefault(); showPage('register-page'); };
-document.getElementById('go-to-login').onclick = (e) => { e.preventDefault(); showPage('login-page'); };
-document.getElementById('btn-new-complaint').onclick = () => showPage('submit-complaint-page');
-
 // Init
 (async () => {
     await checkSession();
-    if (!currentUser) {
-        showPage('login-page');
-    }
+    if (!currentUser) showPage('login-page');
+    else if (currentUser.role === 'admin') loadAllComplaints();
+    else loadMyComplaints();
 })();
+
+// Nav listeners
+document.getElementById('go-to-register').onclick = () => showPage('register-page');
+document.getElementById('go-to-login').onclick = () => showPage('login-page');
+document.getElementById('btn-new-complaint').onclick = () => showPage('submit-complaint-page');
