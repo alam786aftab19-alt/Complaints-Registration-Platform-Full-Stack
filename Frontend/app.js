@@ -44,7 +44,9 @@ async function apiCall(endpoint, method = 'GET', body = null) {
     if (body) options.body = JSON.stringify(body);
 
     try {
-        const res = await fetch(`${API_BASE}${endpoint}`, options);
+        const url = `${API_BASE.replace(/\/$/, '')}/${endpoint.replace(/^\//, '')}`;
+        console.log("🌐 Calling API:", url);
+        const res = await fetch(url, options);
         const data = await res.json();
         if (!res.ok) {
             // Show the detailed error if the backend provided one
