@@ -49,9 +49,10 @@ async function apiCall(endpoint, method = 'GET', body = null) {
         const res = await fetch(url, options);
         const data = await res.json();
         if (!res.ok) {
-            // Show the detailed error if the backend provided one
-            const detail = data.error ? `: ${data.error}` : '';
-            throw new Error((data.message || 'Something went wrong') + detail);
+            console.error("❌ Backend Error Data:", data);
+            const detail = data.details || data.error || '';
+            const code = data.code ? ` (Code: ${data.code})` : '';
+            throw new Error(`${data.message || 'Something went wrong'}: ${detail}${code}`);
         }
         return data;
     } catch (err) {
