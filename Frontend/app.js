@@ -1,4 +1,6 @@
-const API_BASE = "https://complaints-registration-platform-full-xnkl.onrender.com/api";
+const API_BASE = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost" 
+    ? "http://localhost:3010/api" 
+    : "https://complaints-registration-platform-full-xnkl.onrender.com/api";
 console.log("🚀 FRONTEND CONNECTED TO:", API_BASE);
 
 // State
