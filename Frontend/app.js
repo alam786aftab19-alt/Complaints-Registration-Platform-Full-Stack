@@ -218,7 +218,7 @@ async function loadMyComplaints() {
 function renderComplaint(c) {
     return `
         <div class="complaint-item" style="background: white; color: #1e293b; border: 1px solid #e2e8f0; margin-bottom: 1rem; padding: 1.5rem; border-radius: 12px;">
-            <div class="comp-id" style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 0.5rem;">ID: ${c.id.substring(0, 8)}</div>
+            <div class="comp-id" style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 0.5rem;">ID: ${String(c.id).substring(0, 8)}</div>
             <div class="comp-desc" style="color: #1e293b; font-weight: 500; margin-bottom: 1rem;">${c.complaintText || 'No description provided'}</div>
             <div class="ai-section" style="background: #f8fafc; border-left: 4px solid #6366f1; padding: 1rem; border-radius: 0 8px 8px 0;">
                 <div class="ai-label" style="color: #6366f1; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 0.3rem;">AI Follow-up Question</div>
@@ -249,7 +249,7 @@ async function loadAllComplaints() {
                 <div class="user-info" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem; margin-bottom: 1rem; color: #64748b; font-size: 0.9rem;">
                     <strong>User:</strong> ${c.userName || 'Unknown'} (${c.userEmail || 'N/A'})
                 </div>
-                <div class="comp-id" style="color: #94a3b8; font-size: 0.8rem;">ID: ${c.id.substring(0, 8)}</div>
+            <div class="comp-id" style="color: #94a3b8; font-size: 0.8rem;">ID: ${String(c.id).substring(0, 8)}</div>
                 <div class="comp-desc" style="color: #1e293b; font-weight: 500; margin: 1rem 0;">${c.complaintText}</div>
                 <div class="ai-section" style="background: #f8fafc; border-left: 4px solid #6366f1; padding: 1rem; border-radius: 0 8px 8px 0;">
                     <div class="ai-label" style="color: #6366f1; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">AI Follow-up Question</div>
