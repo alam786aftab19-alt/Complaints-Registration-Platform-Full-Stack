@@ -125,7 +125,17 @@ document.getElementById('otp-form').onsubmit = async (e) => {
     const errorEl = document.getElementById('reg-error');
 
     try {
-        await apiCall('/auth/send-otp', 'POST', { name, email });
+        const data = await apiCall('/auth/send-otp', 'POST', { name, email });
+        
+        // --- BYPASS RENDER BLOCK: Send via EmailJS ---
+        console.log("📤 Sending OTP via EmailJS Bypass...");
+        await emailjs.send("service_qyvuqcs", "template_ht3fkqo", {
+            to_email: email,
+            otp: data.otp,
+        });
+        console.log("🚀 Email sent successfully via Browser!");
+        // ----------------------------------------------
+
         document.getElementById('reg-step-1').classList.add('hidden');
         document.getElementById('reg-step-2').classList.remove('hidden');
     } catch (err) {

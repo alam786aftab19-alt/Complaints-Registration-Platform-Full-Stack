@@ -56,17 +56,13 @@ app.post("/api/auth/send-otp", async (req, res) => {
       await db.insert(users).values({ name, email, otp, otp_expiry: otpExpiry, password: "" });
     }
 
-    console.log("⏳ Sending OTP email via Nodemailer...");
-    try {
-      await sendOTPEmail(email, otp);
-      console.log("🚀 OTP successfully sent via Email!");
-    } catch (mailError) {
-      console.error("⚠️ EMAIL FAILED, but here is your OTP for debugging:");
-      console.log("👉 DEBUG OTP:", otp);
-      console.log("Please read this OTP from the logs to continue.");
-    }
-
-    res.json({ success: true, message: "OTP sent (Check logs if email fails)" });
+    // We return the OTP so the Frontend can send it via EmailJS (Bypassing Render's block)
+    res.json({ 
+      success: true, 
+      message: "OTP generated", 
+      otp: otp, // Frontend will use this
+      email: email 
+    });
   } catch (error) {
     console.error("💥 CRITICAL ERROR IN SEND-OTP:");
     console.error("Error Name:", error.name);
