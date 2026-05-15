@@ -1,42 +1,29 @@
-import nodemailer from "nodemailer";
+import { Resend } from 'resend';
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const gmailPass = process.env.GMAIL_PASS ? process.env.GMAIL_PASS.replace(/\s+/g, '') : '';
-
-const transporter = nodemailer.createTransport({
-  host: '74.125.142.108', // Direct Gmail IPv4 Address to bypass Render's IPv6 issues
-  port: 587,
-  secure: false, 
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: gmailPass,
-  },
-  tls: {
-    servername: 'smtp.gmail.com', // Required for SSL/TLS to work with an IP
-    rejectUnauthorized: false
-  },
-  connectionTimeout: 15000,
-});
+const resend = new Resend(process.env.RESEND_API_KEY || 're_UoWDVCvd_MKr6UmkK7dAeFpyRM1iLLC2x');
 
 export const sendOTPEmail = async (email, otp) => {
-  console.log(`📧 Attempting to send OTP to ${email}...`);
-  if (!process.env.GMAIL_USER || !gmailPass) {
-    throw new Error("Missing GMAIL_USER or GMAIL_PASS environment variables");
-  }
-  const mailOptions = {
-    from: process.env.GMAIL_USER,
-    to: email,
-    subject: "Your Registration OTP",
-    text: `Your OTP for registration is: ${otp}. It will expire in 10 minutes.`,
-  };
-
+  console.log(`📧 Attempting to send OTP to ${email} via Resend...`);
+  
   try {
-    await transporter.sendMail(mailOptions);
-    console.log(`OTP sent to ${email}`);
+    const { data, error } = await resend.emails.send({
+      from: 'onboarding@resend.dev',
+      to: email,
+      subject: 'Your Registration OTP',
+      html: `<strong>Your OTP for registration is: ${otp}</strong>. It will expire in 10 minutes.`,
+    });
+
+    if (error) {
+      console.error("❌ Resend Error:", error);
+      throw error;
+    }
+
+    console.log(`✅ OTP sent successfully to ${email}. ID: ${data.id}`);
   } catch (error) {
-    console.error("Error sending email:", error);
+    console.error("❌ Critical Email Error:", error);
     throw error;
   }
 };
