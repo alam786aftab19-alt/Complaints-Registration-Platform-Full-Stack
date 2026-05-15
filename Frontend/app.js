@@ -128,6 +128,8 @@ document.getElementById('otp-form').onsubmit = async (e) => {
                 to_email: email, 
                 email: email,    
                 otp: data.otp,
+                OTP: data.otp,  // Uppercase just in case
+                code: data.otp, // Common alternative
             });
             console.log("🚀 Email sent successfully via Browser!");
         } catch (emailErr) {
